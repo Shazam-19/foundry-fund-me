@@ -13,7 +13,6 @@ To test a single function, we can use 'forge test [FUNCTION NAME]'
 */
 
 contract FundMeTest is Test {
-
     // Declare a FundMe instance to interact with during tests
     FundMe fundMe;
 
