@@ -21,6 +21,9 @@ library PriceConverter {
         // Docs: https://docs.chain.link/data-feeds/price-feeds/addresses
         AggregatorV3Interface priceFeed = AggregatorV3Interface(0x694AA1769357215DE4FAC081bf1f309aDC325306);
 
+        // How can we avoid hardcoding network-specific addresses like the price feed
+        // to keep our contracts flexible?
+
         // Since we don't need all these returned data below, we can just remove them and leave a ','
         // (uint80 roundID, int256 price, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound) = priceFeed.latestRoundData();
         (, int256 price,,,) = priceFeed.latestRoundData();
