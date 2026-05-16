@@ -37,8 +37,7 @@ contract FundMe {
     address[] public funders;
 
     // Track how much ETH each address funded
-    mapping(address funder => uint256 amountFunded)
-        public addressToAmountFunded;
+    mapping(address funder => uint256 amountFunded) public addressToAmountFunded;
 
     // Variable assigned once during contract deployment - This will save much more gas than without 'immutable'
     address public immutable i_owner;
@@ -62,10 +61,7 @@ contract FundMe {
 
         // Convert sent ETH into USD value and verify minimum amount.
         // msg.value = amount of ETH sent in Wei since 1 ETH = 1e18 Wei
-        require(
-            msg.value.getConversionRate() >= MINIMUM_USD,
-            "ETH amount is below the minimum requirement."
-        ); // 1e18 = 1 ETH = 1,000,000,000,000,000,000 Wei = 1 * 10^18 Wei
+        require(msg.value.getConversionRate() >= MINIMUM_USD, "ETH amount is below the minimum requirement."); // 1e18 = 1 ETH = 1,000,000,000,000,000,000 Wei = 1 * 10^18 Wei
 
         // Store funder address
         funders.push(msg.sender);
@@ -90,11 +86,7 @@ contract FundMe {
     // Iterates through the funders array and sets every funded amount to 0.
     function withdraw() public onlyOwner {
         // Loop through all funders
-        for (
-            uint256 funderIndex = 0;
-            funderIndex < funders.length;
-            funderIndex++
-        ) {
+        for (uint256 funderIndex = 0; funderIndex < funders.length; funderIndex++) {
             // Get funder address at current index
             address funder = funders[funderIndex];
 
@@ -115,7 +107,7 @@ contract FundMe {
 
         // a)
         // 'msg.sender' = address - we can't send ETH
-        // 'payable(msg.sender)' = payable address - we can send ETH 
+        // 'payable(msg.sender)' = payable address - we can send ETH
         payable(msg.sender).transfer(address(this).balance); // Here we will transfer/withdraw all balance
 
         // b)
@@ -131,9 +123,7 @@ contract FundMe {
         // Since we don't care about calling any functions in this 'call',
         // we will ignore the returned data bytes and just leave the returned bool
         /* (bool callSuccess, bytes memory dataReturned)*/
-        (bool callSuccess, ) = payable(msg.sender).call{
-            value: address(this).balance
-        }(""); // Here we will transfer/withdraw all balance
+        (bool callSuccess,) = payable(msg.sender).call{value: address(this).balance}(""); // Here we will transfer/withdraw all balance
         /*
             Empty string "" means:
             - No calldata

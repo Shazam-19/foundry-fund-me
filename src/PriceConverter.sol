@@ -19,13 +19,11 @@ library PriceConverter {
 
         // Sepolia ETH / USD Address
         // Docs: https://docs.chain.link/data-feeds/price-feeds/addresses
-        AggregatorV3Interface priceFeed = AggregatorV3Interface(
-            0x694AA1769357215DE4FAC081bf1f309aDC325306
-        );
+        AggregatorV3Interface priceFeed = AggregatorV3Interface(0x694AA1769357215DE4FAC081bf1f309aDC325306);
 
         // Since we don't need all these returned data below, we can just remove them and leave a ','
         // (uint80 roundID, int256 price, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound) = priceFeed.latestRoundData();
-        (, int256 price, , , ) = priceFeed.latestRoundData();
+        (, int256 price,,,) = priceFeed.latestRoundData();
         require(price > 0, "chainlink price <= 0");
         /*
         Chainlink ETH/USD price feed returns 8 decimals.
@@ -53,9 +51,7 @@ library PriceConverter {
         (2000_000000000000000 * 1_000000000000000000) / 1e18;
         $2000 = 1 ETH
     */
-    function getConversionRate(
-        uint256 ethAmount
-    ) internal view returns (uint256) {
+    function getConversionRate(uint256 ethAmount) internal view returns (uint256) {
         // Fetch ETH price in USD (18 decimals)
         uint256 ethPrice = getPrice();
 
@@ -71,8 +67,6 @@ library PriceConverter {
     function getVersion() internal view returns (uint256) {
         // Create an interface instance pointing to the deployed
         // Chainlink ETH/USD price feed contract and return its version.
-        return
-            AggregatorV3Interface(0x694AA1769357215DE4FAC081bf1f309aDC325306)
-                .version();
+        return AggregatorV3Interface(0x694AA1769357215DE4FAC081bf1f309aDC325306).version();
     }
 }
