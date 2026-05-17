@@ -12,7 +12,6 @@ import {HelperConfig} from "./HelperConfig.s.sol";
 contract DeployFundMe is Script {
     // The `run` function is automatically called when executing this script
     function run() external returns (FundMe) {
-
         // Anything before startBroadcast -> Not a "real" tx
         HelperConfig helperConfig = new HelperConfig();
 
