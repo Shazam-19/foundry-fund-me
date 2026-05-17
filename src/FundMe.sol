@@ -138,14 +138,12 @@ contract FundMe {
         require(callSuccess, "Failed to Send ETH to the Address");
     }
 
-
     // Returns the version of the deployed Chainlink price feed contract.
     function getVersion() public view returns (uint256) {
         // Create an interface instance pointing to the deployed
         // Chainlink ETH/USD price feed contract and return its version.
         return s_priceFeed.version();
     }
-
 
     modifier onlyOwner() {
         // require(msg.sender == i_owner, "Must be Owner to be able to Withdraw");

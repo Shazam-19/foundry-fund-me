@@ -54,10 +54,7 @@ library PriceConverter {
         (2000_000000000000000 * 1_000000000000000000) / 1e18;
         $2000 = 1 ETH
     */
-    function getConversionRate(
-        uint256 ethAmount,
-        AggregatorV3Interface priceFeed
-        ) internal view returns (uint256) {
+    function getConversionRate(uint256 ethAmount, AggregatorV3Interface priceFeed) internal view returns (uint256) {
         // Fetch ETH price in USD (18 decimals)
         uint256 ethPrice = getPrice(priceFeed);
 
