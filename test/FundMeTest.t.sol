@@ -6,10 +6,15 @@ import {Test, console} from "forge-std/Test.sol";
 
 // Import the FundMe contract to be tested
 import {FundMe} from "../src/FundMe.sol";
-import {PriceConverter} from "../src/PriceConverter.sol";
+
+// Import the DeployFundMe contract to so we can deploy an instance of the contract whenever we want
+import {DeployFundMe} from "../script/DeployFundMe.s.sol";
 
 /*
 To test a single function, we can use 'forge test [FUNCTION NAME]'
+
+To check how much of the code is tested, we use this command:
+'forge coverage --fork-url $SEPOLIA_RPC_URL'
 */
 
 contract FundMeTest is Test {
@@ -20,7 +25,10 @@ contract FundMeTest is Test {
     function setUp() external {
         // Deploy a new FundMe contract instance
         // Note: The owner of FundMe will be this test contract
-        fundMe = new FundMe();
+        // fundMe = new FundMe(0x694AA1769357215DE4FAC081bf1f309aDC325306);
+
+        DeployFundMe deployFundMe = new DeployFundMe();
+        fundMe = deployFundMe.run();
     }
 
     // Test that the minimum USD required in FundMe is 5 USD (scaled by 1e18 for decimals)
@@ -32,8 +40,8 @@ contract FundMeTest is Test {
     // Test that the owner of FundMe is correctly set to the deployer (this test contract)
     function testOwnerIsMsgSender() public view {
         // Verify that the owner of FundMe is the current contract (FundMeTest)
-        // 'address(this)' refers to the current contract, not the external caller 'msg.sender'
-        assertEq(fundMe.i_owner(), address(this));
+        // 'address(this)' refers to the current contract, not the external caller which is 'msg.sender'
+        assertEq(fundMe.i_owner(), msg.sender);
     }
 
     /*
@@ -48,7 +56,7 @@ contract FundMeTest is Test {
        - Testing our code in a real environment that is not prod
     */
     function testPriceFeedVersionIsAccurate() public view {
-        uint256 version = PriceConverter.getVersion();
+        uint256 version = fundMe.getVersion();
         assertEq(version, 4);
     }
 }

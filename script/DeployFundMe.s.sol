@@ -9,17 +9,19 @@ import {FundMe} from "../src/FundMe.sol";
 // This contract handles the deployment of the FundMe contract
 contract DeployFundMe is Script {
     // The `run` function is automatically called when executing this script
-    function run() external {
+    function run() external returns (FundMe) {
         // Begin broadcasting transactions to the blockchain
         // All contract creation or state-changing operations between startBroadcast()
         // and stopBroadcast() are sent to the network
         vm.startBroadcast();
 
         // Deploy a new instance of the FundMe contract
-        new FundMe();
+        FundMe fundMe = new FundMe(0x694AA1769357215DE4FAC081bf1f309aDC325306);
 
         // Stop broadcasting transactions
         // After this point, any further contract interactions are not sent to the blockchain
         vm.stopBroadcast();
+
+        return fundMe;
     }
 }

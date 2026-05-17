@@ -12,17 +12,17 @@ import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interf
 library PriceConverter {
     // Returns the latest ETH/USD price from Chainlink.
     // Return value uses 18 decimals for consistency.
-    function getPrice() internal view returns (uint256) {
+    function getPrice(AggregatorV3Interface priceFeed) internal view returns (uint256) {
         // We want to contract another contract so what do we need?
         // Address - 0x694AA1769357215DE4FAC081bf1f309aDC325306
         // ABI (provided through the imported interface)
 
-        // Sepolia ETH / USD Address
+        // Sepolia ETH / USD Address (Hard-Coded)
         // Docs: https://docs.chain.link/data-feeds/price-feeds/addresses
-        AggregatorV3Interface priceFeed = AggregatorV3Interface(0x694AA1769357215DE4FAC081bf1f309aDC325306);
+        // AggregatorV3Interface priceFeed = AggregatorV3Interface(0x694AA1769357215DE4FAC081bf1f309aDC325306);
 
         // How can we avoid hardcoding network-specific addresses like the price feed
-        // to keep our contracts flexible?
+        // to keep our contracts flexible? By passing an address to the the constructor
 
         // Since we don't need all these returned data below, we can just remove them and leave a ','
         // (uint80 roundID, int256 price, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound) = priceFeed.latestRoundData();
@@ -54,9 +54,12 @@ library PriceConverter {
         (2000_000000000000000 * 1_000000000000000000) / 1e18;
         $2000 = 1 ETH
     */
-    function getConversionRate(uint256 ethAmount) internal view returns (uint256) {
+    function getConversionRate(
+        uint256 ethAmount,
+        AggregatorV3Interface priceFeed
+        ) internal view returns (uint256) {
         // Fetch ETH price in USD (18 decimals)
-        uint256 ethPrice = getPrice();
+        uint256 ethPrice = getPrice(priceFeed);
 
         // 1000000000000000000 * 1000000000000000000 = 1000000000000000000000000000000000000
         // 1000000000000000000000000000000000000 / 18 = 1000000000000000000
@@ -66,10 +69,12 @@ library PriceConverter {
         return ethAmountInUSD;
     }
 
+    /*
     // Returns the version of the deployed Chainlink price feed contract.
     function getVersion() internal view returns (uint256) {
         // Create an interface instance pointing to the deployed
         // Chainlink ETH/USD price feed contract and return its version.
         return AggregatorV3Interface(0x694AA1769357215DE4FAC081bf1f309aDC325306).version();
     }
+    */
 }

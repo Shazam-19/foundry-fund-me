@@ -12,6 +12,7 @@ Purpose:
 */
 
 import {PriceConverter} from "./PriceConverter.sol";
+import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 
 // It's a good practice to rename the error with [Contract Name]__[Error Name]
 // This way, it's easier to debug errors for larger projects to know that this specified error is related to the contract
@@ -33,6 +34,8 @@ contract FundMe {
     // Using `constant` saves gas because the value is fixed at compile time
     // Constant variables are conventionally written in uppercase letters
 
+    AggregatorV3Interface private s_priceFeed;
+
     // Keep track of everyone's addresses who will send money to this contract
     address[] public funders;
 
@@ -44,8 +47,9 @@ contract FundMe {
 
     // Called when the contract is deployed
     // So that only the owner of the contract can use the withdraw function
-    constructor() {
+    constructor(address PriceFeed) {
         i_owner = msg.sender;
+        s_priceFeed = AggregatorV3Interface(PriceFeed);
     }
 
     // Allows users to fund the contract with ETH.
@@ -61,7 +65,8 @@ contract FundMe {
 
         // Convert sent ETH into USD value and verify minimum amount.
         // msg.value = amount of ETH sent in Wei since 1 ETH = 1e18 Wei
-        require(msg.value.getConversionRate() >= MINIMUM_USD, "ETH amount is below the minimum requirement."); // 1e18 = 1 ETH = 1,000,000,000,000,000,000 Wei = 1 * 10^18 Wei
+        require(msg.value.getConversionRate(s_priceFeed) >= MINIMUM_USD, "ETH amount is below the minimum requirement.");
+        // 1e18 = 1 ETH = 1,000,000,000,000,000,000 Wei = 1 * 10^18 Wei
 
         // Store funder address
         funders.push(msg.sender);
@@ -132,6 +137,15 @@ contract FundMe {
             */
         require(callSuccess, "Failed to Send ETH to the Address");
     }
+
+
+    // Returns the version of the deployed Chainlink price feed contract.
+    function getVersion() public view returns (uint256) {
+        // Create an interface instance pointing to the deployed
+        // Chainlink ETH/USD price feed contract and return its version.
+        return s_priceFeed.version();
+    }
+
 
     modifier onlyOwner() {
         // require(msg.sender == i_owner, "Must be Owner to be able to Withdraw");
