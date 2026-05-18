@@ -73,11 +73,11 @@ contract FundMeTest is Test {
         // First call:
         // Deploys (or retrieves) the Anvil network configuration
         // On the first call, this should deploy a new MockV3Aggregator
-        HelperConfig.NetworkConfig memory config1 = helperConfig.getAnvilEthConfig();
+        HelperConfig.NetworkConfig memory config1 = helperConfig.getOrCreateAnvilEthConfig();
 
         // Second call:
         // Should reuse the already deployed mock instead of deploying a new one
-        HelperConfig.NetworkConfig memory config2 = helperConfig.getAnvilEthConfig();
+        HelperConfig.NetworkConfig memory config2 = helperConfig.getOrCreateAnvilEthConfig();
 
         // Debugging (optional):
         // Prints the price feed addresses to verify they are identical

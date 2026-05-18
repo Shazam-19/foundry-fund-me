@@ -16,6 +16,13 @@ contract HelperConfig is Script {
     // If we are on a local anvil, we deploy mocks
     // Otherwise, grab the existing address from the live network
 
+    // Precision for the MockV3Aggregator price feed
+    uint8 public constant DECIMALS = 8;
+
+    // Starting ETH/USD price for the mock aggregator
+    int256 public constant INITIAL_PRICE = 2000e8;
+
+
     // Struct used to store network configuration values
     struct NetworkConfig {
         address priceFeed;
@@ -36,7 +43,7 @@ contract HelperConfig is Script {
 
             // Default to local Anvil configuration
         } else {
-            activeNetworkConfig = getAnvilEthConfig();
+            activeNetworkConfig = getOrCreateAnvilEthConfig();
         }
     }
 
@@ -57,7 +64,7 @@ contract HelperConfig is Script {
     }
 
     // Returns the configuration for the local Anvil network
-    function getAnvilEthConfig() public returns (NetworkConfig memory) {
+    function getOrCreateAnvilEthConfig() public returns (NetworkConfig memory) {
         // Deploy a mock price feed contract locally
         // This simulates the behavior of a real Chainlink price
 
@@ -76,7 +83,7 @@ contract HelperConfig is Script {
         // Parameters:
         // 8      -> Number of decimals used by the price feed (Chainlink price feeds commonly use it)
         // 2000e8 -> Initial ETH price = 2000.00000000
-        MockV3Aggregator mockPriceFeed = new MockV3Aggregator(8, 2000e8);
+        MockV3Aggregator mockPriceFeed = new MockV3Aggregator(DECIMALS, INITIAL_PRICE);
 
         vm.stopBroadcast();
 
