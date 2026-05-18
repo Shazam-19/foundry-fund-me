@@ -13,7 +13,6 @@ import {DeployFundMe} from "../script/DeployFundMe.s.sol";
 // Instance of HelperConfig used to access network configuration functions
 import {HelperConfig} from "../script/HelperConfig.s.sol";
 
-
 /*
 To test a single function, we can use 'forge test [FUNCTION NAME]'
 
@@ -28,8 +27,6 @@ contract FundMeTest is Test {
     // Deploy a fresh HelperConfig contract before each test
     // This ensures each test runs in a clean isolated state
     HelperConfig helperConfig;
-
-
 
     // This function runs before each test to set up the environment
     function setUp() external {
@@ -72,19 +69,15 @@ contract FundMeTest is Test {
         assertEq(version, 4);
     }
 
-
     function testAnvilConfigReusesMock() public {
-
         // First call:
         // Deploys (or retrieves) the Anvil network configuration
         // On the first call, this should deploy a new MockV3Aggregator
-        HelperConfig.NetworkConfig memory config1 =
-            helperConfig.getAnvilEthConfig();
+        HelperConfig.NetworkConfig memory config1 = helperConfig.getAnvilEthConfig();
 
         // Second call:
         // Should reuse the already deployed mock instead of deploying a new one
-        HelperConfig.NetworkConfig memory config2 =
-            helperConfig.getAnvilEthConfig();
+        HelperConfig.NetworkConfig memory config2 = helperConfig.getAnvilEthConfig();
 
         // Debugging (optional):
         // Prints the price feed addresses to verify they are identical

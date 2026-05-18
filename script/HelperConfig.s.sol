@@ -43,9 +43,7 @@ contract HelperConfig is Script {
     // Returns the ETH/USD price feed configuration for Sepolia
     function getSepoliaEthConfig() public pure returns (NetworkConfig memory) {
         // Chainlink ETH/USD price feed address on Sepolia
-        NetworkConfig memory sepoliaConfig = NetworkConfig({
-            priceFeed: 0x694AA1769357215DE4FAC081bf1f309aDC325306
-            });
+        NetworkConfig memory sepoliaConfig = NetworkConfig({priceFeed: 0x694AA1769357215DE4FAC081bf1f309aDC325306});
 
         return sepoliaConfig;
     }
@@ -53,9 +51,7 @@ contract HelperConfig is Script {
     // Returns the ETH/USD price feed configuration for Ethereum Mainnet
     function getMainnetEthConfig() public pure returns (NetworkConfig memory) {
         // Chainlink ETH/USD price feed address on Mainnet
-        NetworkConfig memory ethConfig = NetworkConfig({
-            priceFeed: 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419
-            });
+        NetworkConfig memory ethConfig = NetworkConfig({priceFeed: 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419});
 
         return ethConfig;
     }
@@ -63,8 +59,7 @@ contract HelperConfig is Script {
     // Returns the configuration for the local Anvil network
     function getAnvilEthConfig() public returns (NetworkConfig memory) {
         // Deploy a mock price feed contract locally
-        // This simulates the behavior of a real Chainlink price 
-    
+        // This simulates the behavior of a real Chainlink price
 
         // Reuse existing mock if already deployed to save gas fees
         if (activeNetworkConfig.priceFeed != address(0)) {
@@ -74,7 +69,6 @@ contract HelperConfig is Script {
         // This check is only needed for the Anvil configuration because it deploys
         // mock contracts. The Sepolia and Mainnet config functions simply return
         // hardcoded addresses and do not require this optimization.
-
 
         vm.startBroadcast();
 
@@ -87,9 +81,7 @@ contract HelperConfig is Script {
         vm.stopBroadcast();
 
         // Store the mock price feed address inside the network configuration struct
-        NetworkConfig memory anvilConfig = NetworkConfig({
-            priceFeed:address(mockPriceFeed)
-        });
+        NetworkConfig memory anvilConfig = NetworkConfig({priceFeed: address(mockPriceFeed)});
 
         // Return the local Anvil configuration
         return anvilConfig;
