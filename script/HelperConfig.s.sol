@@ -22,7 +22,6 @@ contract HelperConfig is Script {
     // Starting ETH/USD price for the mock aggregator
     int256 public constant INITIAL_PRICE = 2000e8;
 
-
     // Struct used to store network configuration values
     struct NetworkConfig {
         address priceFeed;
