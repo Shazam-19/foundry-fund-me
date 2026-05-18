@@ -116,6 +116,7 @@ contract FundMeTest is Test {
 
     function testFundUpdatesFundedDataStructures() public {
         // Simulate the next transaction being sent by USER
+        // Useful for testing how different users interact with the contract
         vm.prank(USER);
 
         // Fund the contract with the test ETH amount
@@ -126,5 +127,48 @@ contract FundMeTest is Test {
 
         // Verify the funded amount was updated correctly
         assertEq(amountFunded, SEND_VALUE);
+    }
+
+    // Test that a funder's address is added to the funders array
+    function testAddsFunderToArrayOfFunders() public {
+        // Simulate the next transaction being sent by USER
+
+        vm.prank(USER);
+        // Fund the contract with the test ETH amount
+
+        fundMe.fund{value: SEND_VALUE}();
+        // Retrieve the first funder stored in the array
+
+        address funder = fundMe.getFunder(0);
+
+        // Verify that USER was added to the funders array
+
+        assertEq(funder, USER);
+    }
+
+    // Test that only the contract owner can withdraw funds
+
+    function testOnlyOwnerCanWithdraw() public {
+        // Simulate USER funding the contract
+        vm.prank(USER);
+
+        // Send ETH to the contract
+        fundMe.fund{value: SEND_VALUE}();
+
+        // Simulate USER attempting to withdraw funds
+        // Note: 'vm.prank(USER)' is only used once, so if we want to use it for multiple calles, then
+        // Keep USER as msg.sender for all following transactions until stopPrank() is called
+        // vm.startPrank(USER);
+        // End the prank and reset msg.sender to the default test contract address
+        // vm.stopPrank();
+        vm.prank(USER);
+
+        // Expect the next transaction to revert
+        // because USER is not the contract owner
+        vm.expectRevert();
+
+        // Attempt to withdraw funds from the contract
+
+        fundMe.withdraw();
     }
 }
