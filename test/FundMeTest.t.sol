@@ -10,6 +10,10 @@ import {FundMe} from "../src/FundMe.sol";
 // Import the DeployFundMe contract to so we can deploy an instance of the contract whenever we want
 import {DeployFundMe} from "../script/DeployFundMe.s.sol";
 
+// Instance of HelperConfig used to access network configuration functions
+import {HelperConfig} from "../script/HelperConfig.s.sol";
+
+
 /*
 To test a single function, we can use 'forge test [FUNCTION NAME]'
 
@@ -21,6 +25,12 @@ contract FundMeTest is Test {
     // Declare a FundMe instance to interact with during tests
     FundMe fundMe;
 
+    // Deploy a fresh HelperConfig contract before each test
+    // This ensures each test runs in a clean isolated state
+    HelperConfig helperConfig;
+
+
+
     // This function runs before each test to set up the environment
     function setUp() external {
         // Deploy a new FundMe contract instance
@@ -29,6 +39,8 @@ contract FundMeTest is Test {
 
         DeployFundMe deployFundMe = new DeployFundMe();
         fundMe = deployFundMe.run();
+
+        helperConfig = new HelperConfig();
     }
 
     // Test that the minimum USD required in FundMe is 5 USD (scaled by 1e18 for decimals)
@@ -58,5 +70,30 @@ contract FundMeTest is Test {
     function testPriceFeedVersionIsAccurate() public view {
         uint256 version = fundMe.getVersion();
         assertEq(version, 4);
+    }
+
+
+    function testAnvilConfigReusesMock() public {
+
+        // First call:
+        // Deploys (or retrieves) the Anvil network configuration
+        // On the first call, this should deploy a new MockV3Aggregator
+        HelperConfig.NetworkConfig memory config1 =
+            helperConfig.getAnvilEthConfig();
+
+        // Second call:
+        // Should reuse the already deployed mock instead of deploying a new one
+        HelperConfig.NetworkConfig memory config2 =
+            helperConfig.getAnvilEthConfig();
+
+        // Debugging (optional):
+        // Prints the price feed addresses to verify they are identical
+        // console.log(config1.priceFeed);
+        // console.log(config2.priceFeed);
+
+        // Assertion:
+        // Ensures both calls return the same mock price feed address
+        // This confirms that mock reuse logic is working correctly
+        assertEq(config1.priceFeed, config2.priceFeed);
     }
 }
