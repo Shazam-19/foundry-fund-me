@@ -63,13 +63,24 @@ contract HelperConfig is Script {
     // Returns the configuration for the local Anvil network
     function getAnvilEthConfig() public returns (NetworkConfig memory) {
         // Deploy a mock price feed contract locally
-        // This simulates the behavior of a real Chainlink price feed
+        // This simulates the behavior of a real Chainlink price 
+    
+
+        // Reuse existing mock if already deployed to save gas fees
+        if (activeNetworkConfig.priceFeed != address(0)) {
+            return activeNetworkConfig;
+        }
+        // Note:
+        // This check is only needed for the Anvil configuration because it deploys
+        // mock contracts. The Sepolia and Mainnet config functions simply return
+        // hardcoded addresses and do not require this optimization.
+
 
         vm.startBroadcast();
 
         // Create a mock ETH/USD price feed
         // Parameters:
-        // 8      -> Number of decimals used by the ETH price feed
+        // 8      -> Number of decimals used by the price feed (Chainlink price feeds commonly use it)
         // 2000e8 -> Initial ETH price = 2000.00000000
         MockV3Aggregator mockPriceFeed = new MockV3Aggregator(8, 2000e8);
 
