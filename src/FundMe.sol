@@ -49,10 +49,12 @@ contract FundMe {
     AggregatorV3Interface private s_priceFeed;
 
     // Keep track of everyone's addresses who will send money to this contract
-    address[] public funders;
+    // Private will be more gas efficient than 'public'
+    address[] private s_funders; // 's_' indicates this is a storage/state variable
 
     // Track how much ETH each address funded
-    mapping(address funder => uint256 amountFunded) public addressToAmountFunded;
+    // 's_' indicates this is a storage/state variable
+    mapping(address funder => uint256 amountFunded) private s_addressToAmountFunded;
 
     // Variable assigned once during contract deployment - This will save much more gas than without 'immutable'
     address public immutable i_owner;
@@ -81,27 +83,27 @@ contract FundMe {
         // 1e18 = 1 ETH = 1,000,000,000,000,000,000 Wei = 1 * 10^18 Wei
 
         // Store funder address
-        funders.push(msg.sender);
+        s_funders.push(msg.sender);
 
         // Update amount funded by this sender
-        addressToAmountFunded[msg.sender] += msg.value;
+        s_addressToAmountFunded[msg.sender] += msg.value;
     }
 
     // Withdraws all funded amounts by resetting each funder's balance.
     // Iterates through the funders array and sets every funded amount to 0.
     function withdraw() public onlyOwner {
         // Loop through all funders
-        for (uint256 funderIndex = 0; funderIndex < funders.length; funderIndex++) {
+        for (uint256 funderIndex = 0; funderIndex < s_funders.length; funderIndex++) {
             // Get funder address at current index
-            address funder = funders[funderIndex];
+            address funder = s_funders[funderIndex];
 
             // Reset funded amount for this address
-            addressToAmountFunded[funder] = 0;
+            s_addressToAmountFunded[funder] = 0;
         }
 
         // We still need to:
         // 1. Reset the array
-        funders = new address[](0);
+        s_funders = new address[](0);
 
         // 2. Actually withdraw ALL the funds. There are 3 ways to do this:
         //    a) transfer (2300 gas, throws error)
@@ -166,5 +168,23 @@ contract FundMe {
     // Called when the function does not exist or when calldata is not empty.
     fallback() external payable {
         fund();
+    }
+
+    /*
+    * View / Pure functions (Getters)
+    * Getter function for retrieving the amount funded by a specific address.
+    *
+    * Since `s_funders` and `s_addressToAmountFunded` are marked as private,
+    * they cannot be accessed directly outside the contract.
+    * This function provides controlled read access to the funding data.
+    */
+    function getAddressToAmountFunded(address fundingAddress) external view returns (uint256) {
+        // Return the total amount funded by the given address
+        return s_addressToAmountFunded[fundingAddress];
+    }
+
+    function getFunder(uint256 index) external view returns (address) {
+        // Return the funder address who sent ETH to the contract address
+        return s_funders[index];
     }
 }
