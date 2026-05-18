@@ -15,7 +15,7 @@ import {HelperConfig} from "../script/HelperConfig.s.sol";
 
 /*
 To test a single function, we can use 'forge test [FUNCTION NAME]'
-We use this command: forge test --match-test testFundUpdatesFundedDataStructures 
+We use this command: forge test --match-test testFundUpdatesFundedDataStructures
 
 To check how much of the code is tested, we use this command:
 'forge coverage --fork-url $SEPOLIA_RPC_URL'
