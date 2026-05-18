@@ -15,6 +15,7 @@ import {HelperConfig} from "../script/HelperConfig.s.sol";
 
 /*
 To test a single function, we can use 'forge test [FUNCTION NAME]'
+We use this command: forge test --match-test testFundUpdatesFundedDataStructures 
 
 To check how much of the code is tested, we use this command:
 'forge coverage --fork-url $SEPOLIA_RPC_URL'
@@ -24,9 +25,19 @@ contract FundMeTest is Test {
     // Declare a FundMe instance to interact with during tests
     FundMe fundMe;
 
-    // Deploy a fresh HelperConfig contract before each test
+    // HelperConfig instance used to access network configurations during tests
     // This ensures each test runs in a clean isolated state
     HelperConfig helperConfig;
+
+    // Test user address created with Foundry's makeAddr helper
+    // Cannot be constant because the value is generated at runtime
+    address USER = makeAddr("Shazam");
+
+    // Amount of ETH sent when funding the contract during tests
+    uint256 constant SEND_VALUE = 0.1 ether; // 100000000000000000
+
+    // Initial ETH balance assigned to the test user
+    uint256 constant STARTING_USER_BALANCE = 10 ether;
 
     // This function runs before each test to set up the environment
     function setUp() external {
@@ -37,7 +48,11 @@ contract FundMeTest is Test {
         DeployFundMe deployFundMe = new DeployFundMe();
         fundMe = deployFundMe.run();
 
+        // Create a HelperConfig instance for accessing network configurations
         helperConfig = new HelperConfig();
+
+        // Assign an initial ETH balance to the test user
+        vm.deal(USER, STARTING_USER_BALANCE);
     }
 
     // Test that the minimum USD required in FundMe is 5 USD (scaled by 1e18 for decimals)
@@ -91,15 +106,25 @@ contract FundMeTest is Test {
     }
 
     function testFundFailWithoutEnoughEth() public {
-        vm.expectRevert(); // Hey, the next line, should revert!
-        // assert(This tx fails/reverts)
+        // Expect the next transaction to revert
+        vm.expectRevert();
+
+        // Attempt to fund the contract without sending ETH
+        // This should fail because the minimum funding amount is not met
         fundMe.fund(); // Send 0 ETH
     }
 
     function testFundUpdatesFundedDataStructures() public {
-        fundMe.fund{value: 10e18}();
+        // Simulate the next transaction being sent by USER
+        vm.prank(USER);
 
-        uint256 amountFunded = fundMe.getAddressToAmountFunded(address(this));
-        assertEq(amountFunded, 10e18);
+        // Fund the contract with the test ETH amount
+        fundMe.fund{value: SEND_VALUE}();
+
+        // Retrieve the amount funded by USER from storage
+        uint256 amountFunded = fundMe.getAddressToAmountFunded(USER);
+
+        // Verify the funded amount was updated correctly
+        assertEq(amountFunded, SEND_VALUE);
     }
 }
