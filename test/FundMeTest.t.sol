@@ -89,4 +89,14 @@ contract FundMeTest is Test {
         // This confirms that mock reuse logic is working correctly
         assertEq(config1.priceFeed, config2.priceFeed);
     }
+
+    function testFundFailWithoutEnoughEth() public {
+        vm.expectRevert(); // Hey, the next line, should revert!
+        // assert(This tx fails/reverts)
+        fundMe.fund(); // Send 0 ETH
+    }
+
+    function testFundUpdatesFundedDataStructures() public {
+        fundMe.fund{value: 10e18}();
+    }
 }

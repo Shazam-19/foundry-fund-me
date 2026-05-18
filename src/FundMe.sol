@@ -25,10 +25,22 @@ contract FundMe {
     // Example state variable
     uint256 public myValue = 1;
 
+    /*
+    What does revert do?
+
+    If require() fails:
+    - All state changes made in this transaction are undone
+    - Remaining unused gas is refunded to the caller
+    - Transaction execution stops immediately
+
+    Example:
+    - myValue += 2 will be reverted if require() fails
+    */
+
     // NOTE:
-    // This value is currently compared directly against msg.value (Wei),
+    // This value 'MINIMUM_USD' is currently compared directly against 'msg.value' (Wei),
     // not actual USD. A price feed would be needed for real USD conversion.
-    // We updated the number so that it doesn't be just 5 since getConversionRate return a number
+    // We updated the number so that it doesn't be just 5 since 'getConversionRate()' return a number
     // with an 18 decimal. We can just declare it as '5 * 1e18' or '5 * (10**18)'
     uint256 public constant MINIMUM_USD = 5 * 1e18; // Minimum amount required to fund the contract
     // Using `constant` saves gas because the value is fixed at compile time
@@ -59,8 +71,8 @@ contract FundMe {
         // This change will revert if require() below fails
         myValue += 2;
 
-        // Here, msg.value is automatically passed as the first argument
-        // to getConversionRate() through the PriceConverter library.
+        // Here, 'msg.value' is automatically passed as the first argument
+        // to 'getConversionRate()' through the PriceConverter library.
         /* msg.value.getConversionRate();*/
 
         // Convert sent ETH into USD value and verify minimum amount.
@@ -73,18 +85,6 @@ contract FundMe {
 
         // Update amount funded by this sender
         addressToAmountFunded[msg.sender] += msg.value;
-
-        /*
-        What does revert do?
-
-        If require() fails:
-        - All state changes made in this transaction are undone
-        - Remaining unused gas is refunded to the caller
-        - Transaction execution stops immediately
-
-        Example:
-        - myValue += 2 will be reverted if require() fails
-        */
     }
 
     // Withdraws all funded amounts by resetting each funder's balance.
