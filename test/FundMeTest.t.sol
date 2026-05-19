@@ -39,6 +39,9 @@ contract FundMeTest is Test {
     // Initial ETH balance assigned to the test user
     uint256 constant STARTING_USER_BALANCE = 10 ether;
 
+    // Initial gas price we want to set manually
+    uint256 constant GAS_PRICE = 1;
+
     // This function runs before each test to set up the environment
     function setUp() external {
         // Deploy a new FundMe contract instance
@@ -207,7 +210,8 @@ contract FundMeTest is Test {
     // after multiple users have funded the contract
     function testWithdrawFromMultipleFunders() public funded {
         // Arrange //
-        // why are we using uint160 for using numbers to generate addresses?
+        // Why are we using uint160 for using numbers to generate addresses?
+        // Answer: Because Ethereum addresses are 160 bits.
 
         // Total number of additional funders to simulate
         uint160 numberOfFunders = 10;
@@ -227,6 +231,12 @@ contract FundMeTest is Test {
 
         // Act //
 
+        // Calculate how much gas will be left after the function call
+        uint256 gasStart = gasleft(); // Current gas amount we have before calling 'withdraw()'
+
+        // Set the gas price manually since anvil's default price is 0
+        vm.txGasPrice(GAS_PRICE);
+
         // Store the owner's initial ETH balance
         uint256 startingOwnerBalance = fundMe.getOwner().balance;
 
@@ -241,6 +251,11 @@ contract FundMeTest is Test {
 
         // Stop impersonating the owner
         vm.stopPrank();
+
+        // Get the remaining gas amount and output the value
+        uint256 gasEnd = gasleft();
+        uint256 gasUsed = (gasStart - gasEnd) * tx.gasprice;
+        console.log(gasUsed);
 
         // Assert //
 
