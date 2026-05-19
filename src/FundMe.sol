@@ -140,6 +140,34 @@ contract FundMe {
         require(callSuccess, "Failed to Send ETH to the Address");
     }
 
+    function cheaperWithdraw() public onlyOwner {
+        // Cache the array length in memory to avoid repeated expensive storage reads.
+        // Reading from memory costs 3 gas vs. 2100 gas per read from storage (EIP-2929).
+        uint256 fundersLength = s_funders.length;
+
+        // Loop through every funder and zero out their funded amount.
+        // This prevents re-entrancy exploits and keeps accounting accurate after withdrawal.
+        for (uint256 funderIndex = 0; funderIndex < fundersLength; funderIndex++) {
+            address funder = s_funders[funderIndex]; // Load funder address from storage
+            s_addressToAmountFunded[funder] = 0; // Reset their contribution to zero
+        }
+
+        // Reset the funders array to an empty state.
+        // `new address[](0)` creates a new empty dynamic array, effectively clearing all entries.
+        s_funders = new address[](0);
+
+        // Transfer the entire ETH balance of this contract to the owner (msg.sender).
+        // `call` is the recommended low-level method for sending ETH (over `transfer` or `send`)
+        // because it forwards all available gas and does not revert automatically on failure.
+        // The empty string `""` means no calldata is sent; we are transferring ETH only.
+        // `callSuccess` captures whether the transfer succeeded (true) or failed (false).
+        (bool callSuccess,) = payable(msg.sender).call{value: address(this).balance}("");
+
+        // Revert the entire transaction if the ETH transfer failed.
+        // This protects against silent failures where the owner doesn't receive funds.
+        require(callSuccess, "Failed to Send ETH to the Address");
+    }
+
     // Returns the version of the deployed Chainlink price feed contract.
     function getVersion() public view returns (uint256) {
         // Create an interface instance pointing to the deployed
