@@ -57,7 +57,7 @@ contract FundMe {
     mapping(address funder => uint256 amountFunded) private s_addressToAmountFunded;
 
     // Variable assigned once during contract deployment - This will save much more gas than without 'immutable'
-    address public immutable i_owner;
+    address private immutable i_owner;
 
     // Called when the contract is deployed
     // So that only the owner of the contract can use the withdraw function
@@ -186,5 +186,9 @@ contract FundMe {
     function getFunder(uint256 index) external view returns (address) {
         // Return the funder address who sent ETH to the contract address
         return s_funders[index];
+    }
+
+    function getOwner() external view returns (address) {
+        return i_owner; // Return the contract owner's address
     }
 }

@@ -65,7 +65,7 @@ contract FundMeTest is Test {
     function testOwnerIsMsgSender() public view {
         // Verify that the owner of FundMe is the current contract (FundMeTest)
         // 'address(this)' refers to the current contract, not the external caller which is 'msg.sender'
-        assertEq(fundMe.i_owner(), msg.sender);
+        assertEq(fundMe.get(), msg.sender);
     }
 
     /*
@@ -132,29 +132,27 @@ contract FundMeTest is Test {
     // Test that a funder's address is added to the funders array
     function testAddsFunderToArrayOfFunders() public {
         // Simulate the next transaction being sent by USER
-
         vm.prank(USER);
+
         // Fund the contract with the test ETH amount
-
         fundMe.fund{value: SEND_VALUE}();
-        // Retrieve the first funder stored in the array
 
+        // Retrieve the first funder stored in the array
         address funder = fundMe.getFunder(0);
 
         // Verify that USER was added to the funders array
-
         assertEq(funder, USER);
     }
 
-    // Test that only the contract owner can withdraw funds
-
-    function testOnlyOwnerCanWithdraw() public {
-        // Simulate USER funding the contract
+    // Modifier that funds the contract before running the test
+    modifier funded() {
         vm.prank(USER);
-
-        // Send ETH to the contract
         fundMe.fund{value: SEND_VALUE}();
+        _;
+    }
 
+    // Test that only the contract owner can withdraw funds
+    function testOnlyOwnerCanWithdraw() public funded {
         // Simulate USER attempting to withdraw funds
         // Note: 'vm.prank(USER)' is only used once, so if we want to use it for multiple calles, then
         // Keep USER as msg.sender for all following transactions until stopPrank() is called
@@ -168,7 +166,41 @@ contract FundMeTest is Test {
         vm.expectRevert();
 
         // Attempt to withdraw funds from the contract
+        fundMe.withdraw();
+    }
+
+    // Test that the owner can successfully withdraw funds
+    // when the contract has a single funder
+    function testWithdrawWithASingleFunder() public funded {
+        // Arrange //
+
+        // Store the owner's initial ETH balance
+        uint256 startingOwnerBalance = fundMe.getOwner().balance;
+
+        // Store the contract's initial ETH balance
+        uint256 startingFundMeBalance = address(fundMe).balance;
+
+        // Act //
+
+        // Simulate the owner calling withdraw()
+
+        vm.prank(fundMe.getOwner());
+        // Withdraw all ETH from the contract to the owner
 
         fundMe.withdraw();
+
+        // Asssert //
+
+        // Store the owner's new balance after withdrawal
+        uint256 endingOwnerBalance = fundMe.getOwner().balance;
+
+        // Store the contract's new balance after withdrawal
+        uint256 endingFundMeBalance = address(fundMe).balance;
+
+        // Verify the contract balance is now empty
+        assertEq(endingFundMeBalance, 0);
+
+        // Verify the withdrawn ETH was transferred to the owner
+        assertEq(startingFundMeBalance + startingOwnerBalance, endingOwnerBalance);
     }
 }
