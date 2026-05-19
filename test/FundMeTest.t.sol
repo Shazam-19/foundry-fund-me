@@ -65,7 +65,7 @@ contract FundMeTest is Test {
     function testOwnerIsMsgSender() public view {
         // Verify that the owner of FundMe is the current contract (FundMeTest)
         // 'address(this)' refers to the current contract, not the external caller which is 'msg.sender'
-        assertEq(fundMe.get(), msg.sender);
+        assertEq(fundMe.getOwner(), msg.sender);
     }
 
     /*
@@ -183,10 +183,9 @@ contract FundMeTest is Test {
         // Act //
 
         // Simulate the owner calling withdraw()
-
         vm.prank(fundMe.getOwner());
-        // Withdraw all ETH from the contract to the owner
 
+        // Withdraw all ETH from the contract to the owner
         fundMe.withdraw();
 
         // Asssert //
@@ -202,5 +201,53 @@ contract FundMeTest is Test {
 
         // Verify the withdrawn ETH was transferred to the owner
         assertEq(startingFundMeBalance + startingOwnerBalance, endingOwnerBalance);
+    }
+
+    // Test that the owner can withdraw funds successfully
+    // after multiple users have funded the contract
+    function testWithdrawFromMultipleFunders() public funded {
+        // Arrange //
+        // why are we using uint160 for using numbers to generate addresses?
+
+        // Total number of additional funders to simulate
+        uint160 numberOfFunders = 10;
+
+        // Starting index for generating test addresses
+        uint160 startingFunderIndex = 1;
+
+        // Simulate multiple users funding the contract
+        for (uint160 i = startingFunderIndex; i < numberOfFunders; i++) {
+            // Create a temporary test address and assign it ETH
+            // hoax() combines vm.deal() and vm.prank() into one helper
+            hoax(address(i), SEND_VALUE);
+
+            // Fund the contract from the generated address
+            fundMe.fund{value: SEND_VALUE}();
+        }
+
+        // Act //
+
+        // Store the owner's initial ETH balance
+        uint256 startingOwnerBalance = fundMe.getOwner().balance;
+
+        // Store the contract's initial ETH balance
+        uint256 startingFundMeBalance = address(fundMe).balance;
+
+        // Simulate all following transactions as the contract owner
+        vm.startPrank(fundMe.getOwner());
+
+        // Withdraw all ETH from the fundMe contract to owner contract
+        fundMe.withdraw();
+
+        // Stop impersonating the owner
+        vm.stopPrank();
+
+        // Assert //
+
+        // Verify the contract balance is empty after withdrawal
+        assert(address(fundMe).balance == 0);
+
+        // Verify the owner received all withdrawn ETH
+        assert(startingFundMeBalance + startingOwnerBalance == fundMe.getOwner().balance);
     }
 }
