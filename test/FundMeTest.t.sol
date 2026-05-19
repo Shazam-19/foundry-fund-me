@@ -265,4 +265,64 @@ contract FundMeTest is Test {
         // Verify the owner received all withdrawn ETH
         assert(startingFundMeBalance + startingOwnerBalance == fundMe.getOwner().balance);
     }
+
+    // Test that the owner can withdraw funds successfully
+    // after multiple users have funded the contract
+    function testWithdrawFromMultipleFundersCheaper() public funded {
+        // Arrange //
+        // Why are we using uint160 for using numbers to generate addresses?
+        // Answer: Because Ethereum addresses are 160 bits.
+
+        // Total number of additional funders to simulate
+        uint160 numberOfFunders = 10;
+
+        // Starting index for generating test addresses
+        uint160 startingFunderIndex = 1;
+
+        // Simulate multiple users funding the contract
+        for (uint160 i = startingFunderIndex; i < numberOfFunders; i++) {
+            // Create a temporary test address and assign it ETH
+            // hoax() combines vm.deal() and vm.prank() into one helper
+            hoax(address(i), SEND_VALUE);
+
+            // Fund the contract from the generated address
+            fundMe.fund{value: SEND_VALUE}();
+        }
+
+        // Act //
+
+        // Calculate how much gas will be left after the function call
+        uint256 gasStart = gasleft(); // Current gas amount we have before calling 'withdraw()'
+
+        // Set the gas price manually since anvil's default price is 0
+        vm.txGasPrice(GAS_PRICE);
+
+        // Store the owner's initial ETH balance
+        uint256 startingOwnerBalance = fundMe.getOwner().balance;
+
+        // Store the contract's initial ETH balance
+        uint256 startingFundMeBalance = address(fundMe).balance;
+
+        // Simulate all following transactions as the contract owner
+        vm.startPrank(fundMe.getOwner());
+
+        // Withdraw all ETH from the fundMe contract to owner contract
+        fundMe.cheaperWithdraw();
+
+        // Stop impersonating the owner
+        vm.stopPrank();
+
+        // Get the remaining gas amount and output the value
+        uint256 gasEnd = gasleft();
+        uint256 gasUsed = (gasStart - gasEnd) * tx.gasprice;
+        console.log(gasUsed);
+
+        // Assert //
+
+        // Verify the contract balance is empty after withdrawal
+        assert(address(fundMe).balance == 0);
+
+        // Verify the owner received all withdrawn ETH
+        assert(startingFundMeBalance + startingOwnerBalance == fundMe.getOwner().balance);
+    }
 }

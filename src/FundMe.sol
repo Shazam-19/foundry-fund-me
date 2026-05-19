@@ -140,6 +140,17 @@ contract FundMe {
         require(callSuccess, "Failed to Send ETH to the Address");
     }
 
+    /**
+     * @notice Withdraws all contract funds to the owner, resetting all funder records.
+     * @dev Gas-optimized version of the standard withdraw function.
+     *      The key optimization: instead of reading `s_funders.length` from storage
+     *      on every loop iteration (expensive), we cache it once in a local memory
+     *      variable `fundersLength`. Each storage read costs 2100 gas (SLOAD opcode),
+     *      so this saves significant gas when the funders list is large.
+     *
+     *      Access control is enforced by the `onlyOwner` modifier — only the contract
+     *      owner can call this function.
+     */
     function cheaperWithdraw() public onlyOwner {
         // Cache the array length in memory to avoid repeated expensive storage reads.
         // Reading from memory costs 3 gas vs. 2100 gas per read from storage (EIP-2929).
