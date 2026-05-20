@@ -71,18 +71,14 @@ contract InteractionsTest is Test {
      *         2. Withdraw all funds via the WithdrawFundMe interaction script.
      *         3. Assert that the FundMe contract balance is 0.
      *
-     *         Note: The actual funder in this test is the broadcaster (Foundry's
-     *         default test sender), not USER. USER's balance is set up in setUp()
-     *         and is available if needed by future tests or expanded assertions.
+     *         The actual funder is Foundry's default test sender (via vm.startBroadcast
+     *         inside fundFundMe), not USER. USER exists in this test suite for future
+     *         tests that require a named actor via vm.prank().
      */
     function testUserCanFundInteractions() public {
         // --- Step 1: Fund FundMe using the interaction script ---
 
         FundFundMe fundFundMe = new FundFundMe();
-
-        // Give the test contract enough ETH to fund (needed because fundFundMe
-        // uses vm.startBroadcast which sends from the default test sender).
-        vm.deal(USER, SEND_VALUE);
 
         // Call the funding helper directly. This internally uses vm.startBroadcast
         // to simulate a real on-chain transaction during testing.
