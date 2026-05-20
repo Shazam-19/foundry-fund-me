@@ -27,7 +27,6 @@ import {FundFundMe, WithdrawFundMe} from "../../script/Interactions.s.sol";
  *         contracts working together: DeployFundMe, FundFundMe, WithdrawFundMe, and FundMe.
  */
 contract InteractionsTest is Test {
-
     /// @notice The FundMe instance deployed fresh before each test.
     FundMe fundMe;
 
