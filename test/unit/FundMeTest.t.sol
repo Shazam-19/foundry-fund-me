@@ -5,13 +5,13 @@ pragma solidity ^0.8.26;
 import {Test, console} from "forge-std/Test.sol";
 
 // Import the FundMe contract to be tested
-import {FundMe} from "../src/FundMe.sol";
+import {FundMe} from "../../src/FundMe.sol";
 
 // Import the DeployFundMe contract to so we can deploy an instance of the contract whenever we want
-import {DeployFundMe} from "../script/DeployFundMe.s.sol";
+import {DeployFundMe} from "../../script/DeployFundMe.s.sol";
 
 // Instance of HelperConfig used to access network configuration functions
-import {HelperConfig} from "../script/HelperConfig.s.sol";
+import {HelperConfig} from "../../script/HelperConfig.s.sol";
 
 /*
 To test a single function, we can use 'forge test [FUNCTION NAME]'
