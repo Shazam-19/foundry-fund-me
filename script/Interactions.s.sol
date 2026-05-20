@@ -32,7 +32,6 @@ import {FundMe} from "../src/FundMe.sol";
  *         Run with: `forge script script/Interactions.s.sol:FundFundMe --broadcast`
  */
 contract FundFundMe is Script {
-
     /// @notice The fixed amount of ETH sent to FundMe each time this script runs.
     uint256 constant SEND_VALUE = 0.01 ether;
 
@@ -48,10 +47,7 @@ contract FundFundMe is Script {
     function run() external {
         // Retrieve the address of the most recently deployed FundMe contract
         // on the current network (identified by block.chainid).
-        address mostRecentlyDeployed = DevOpsTools.get_most_recent_deployment(
-            "FundMe",
-            block.chainid
-        );
+        address mostRecentlyDeployed = DevOpsTools.get_most_recent_deployment("FundMe", block.chainid);
 
         // Delegate funding to the helper function, which handles broadcasting.
         fundFundMe(mostRecentlyDeployed);
@@ -98,7 +94,6 @@ contract FundFundMe is Script {
  *         Run with: `forge script script/Interactions.s.sol:WithdrawFundMe --broadcast`
  */
 contract WithdrawFundMe is Script {
-
     /**
      * @notice Entry point for the Forge script. Automatically called by `forge script`.
      * @dev    Looks up the most recent FundMe deployment, then delegates to
@@ -109,10 +104,7 @@ contract WithdrawFundMe is Script {
      */
     function run() external {
         // Retrieve the most recently deployed FundMe contract address for this chain.
-        address mostRecentlyDeployed = DevOpsTools.get_most_recent_deployment(
-            "FundMe",
-            block.chainid
-        );
+        address mostRecentlyDeployed = DevOpsTools.get_most_recent_deployment("FundMe", block.chainid);
 
         // Delegate to the helper function, which handles broadcasting.
         withdrawFundMe(mostRecentlyDeployed);
