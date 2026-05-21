@@ -1,6 +1,4 @@
-<div align="center">
-
-# FundMe
+# Fund Me
 
 A decentralized crowdfunding smart contract built with Solidity and Foundry, using Chainlink price feeds for real-time ETH/USD conversion.
 
