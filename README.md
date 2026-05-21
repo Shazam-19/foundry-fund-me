@@ -123,7 +123,7 @@ forge test
 forge test -vvvv
 
 # Run a specific test
-forge test --match-test testFundUpdatesFundedDataStructure
+forge test --match-test testFundUpdatesFundedDataStructure -vvvv
 ```
 
 ### Deploy
